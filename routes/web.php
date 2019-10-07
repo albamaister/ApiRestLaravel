@@ -24,5 +24,25 @@ Route::get('/pruebas/{nombre?}', function ($nombre = null) {
 });
 
 Route::get('/animales', 'PruebasController@index');
+Route::get('/testOrm', 'PruebasController@testOrm');
 
+
+// Rutas del API
+ /* Metodos HTTP comunes 
+  * GET: Conseguir datos o recursos
+  * POST: Guardar datos o recursos o hacer logica desde un formulario y devolver algo 
+  * PUT: Actualizar recuros o datos
+  * DELETE: ELiminar datos o recursos
+  * 
+ 
+ */
+    // Rutas de prueba
+    Route::get('/usuario/pruebas', 'userController@pruebas');
+    Route::get('/categoria/pruebas', 'categoryController@pruebas');
+    Route::get('/entrada/pruebas', 'PostController@pruebas');
+    
+    // Rutas del controlador de usuarios
+    
+    Route::post('/api/register','UserController@register' );
+    Route::post('/api/login','UserController@login' );
 
