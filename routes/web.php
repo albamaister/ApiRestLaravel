@@ -39,10 +39,10 @@ Route::get('/testOrm', 'PruebasController@testOrm');
     // Rutas de prueba
     Route::get('/usuario/pruebas', 'userController@pruebas');
     Route::get('/categoria/pruebas', 'categoryController@pruebas');
-    Route::get('/entrada/pruebas', 'PostController@pruebas');
+    Route::get('/entrada/pruebas', 'postController@pruebas');
     
     // Rutas del controlador de usuarios
     
-    Route::post('/api/register','UserController@register' );
-    Route::post('/api/login','UserController@login' );
+    Route::post('/api/register','userController@register' );
+    Route::post('/api/login', 'userController@login');
 
