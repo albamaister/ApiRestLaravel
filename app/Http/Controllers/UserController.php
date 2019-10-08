@@ -9,7 +9,9 @@ use App\User;
 class UserController extends Controller {
 
     public function login(Request $request) {
-        return "Accion de login de usuario";
+        $jwtAuth = new \JwtAuth();
+       
+        return $jwtAuth -> signup();
     }
 
     public function pruebas(Request $request) {
