@@ -3,21 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\User;
 
 class UserController extends Controller {
 
     public function login(Request $request) {
         $jwtAuth = new \JwtAuth();
-        
-        $email = 'bryanalba@gmail.com';
-        $password = '1234';
-        
-        $pwd = hash('sha256', $password);
-        
-       
-        return response() -> json($jwtAuth -> signup($email,$pwd, true), 200);
+
+        // Recibir datos por POST
+        $json = $request->input('json', null);
+        $params = json_decode($json);
+        $params_array = json_decode($json, true);
+        // Validar esos datos
+
+        $validate = \Validator::make($params_array, [
+                    'email' => 'required|email',
+                    'password' => 'required'
+        ]);
+
+        if ($validate->fails()) {
+            // Validacion a fallado
+            $signup = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'El usuario no se a podido identificar',
+                'errors' => $validate->errors()
+            );
+        } else {
+            //Cifrar la Password
+            $pwd = hash('sha256', $params -> password);
+            // Devolver el token o datos
+            $signup = $jwtAuth -> signup($params -> email, $pwd);
+            
+            if ( !empty($params -> gettoken) ) {
+              $signup =  $jwtAuth -> signup($params -> email, $pwd, true);
+            }
+        }
+
+        return response()->json($signup, 200);
     }
 
     public function pruebas(Request $request) {
@@ -62,23 +85,23 @@ class UserController extends Controller {
             } else {
                 // Validacion pasada correctamente 
                 // Cifrar la contrasenia
-                 $pwd = hash('sha256', $params -> password);
-                
+                $pwd = hash('sha256', $params->password);
+
                 // Crear el usuario 
-                
+
                 $user = new User();
-                
-                $user -> name = $params_array['name'];
-                $user -> surname = $params_array['surname'];
-                $user -> email = $params_array['email'];
-                $user -> password = $pwd;
-                $user -> role = 'ROLE_USER';
-                
-                
-                
+
+                $user->name = $params_array['name'];
+                $user->surname = $params_array['surname'];
+                $user->email = $params_array['email'];
+                $user->password = $pwd;
+                $user->role = 'ROLE_USER';
+
+
+
                 // Guardar el usuario
-                $user -> save();
-                
+                $user->save();
+
                 $data = array(
                     'status' => 'success',
                     'code' => 200,
@@ -107,6 +130,20 @@ class UserController extends Controller {
 //        $surname = $request -> input('surname');
 //        
 //        return "Accion de registro de usuario $name $surname";
+    }
+    
+    public function update(Request $request) {
+        $token = $request -> header('Authorization');
+        $jwtAuth = new \JwtAuth();
+        $checkToken = $jwtAuth -> checkToken($token);
+        
+        if ( $checkToken ) {
+            echo "<h1>Login correcto</h1>";
+        } else {
+            echo "<h1>Login incorrecto</h1>";
+        }
+        
+        die();
     }
 
 }

@@ -45,4 +45,6 @@ Route::get('/testOrm', 'PruebasController@testOrm');
     
     Route::post('/api/register','userController@register' );
     Route::post('/api/login', 'userController@login');
+    
+    Route::post('/api/user/update', 'userController@update');
 
