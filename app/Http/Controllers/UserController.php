@@ -17,7 +17,7 @@ class UserController extends Controller {
         // Validar esos datos
 
         $validate = \Validator::make($params_array, [
-                    'email' => 'required|email',
+                    'email'    => 'required|email',
                     'password' => 'required'
         ]);
 
@@ -68,19 +68,19 @@ class UserController extends Controller {
             //Validar datos 
 
             $validate = \Validator::make($params_array, [
-                        'name' => 'required|alpha',
-                        'surname' => 'required|alpha',
-                        'email' => 'required|email|unique:users', // Comprobar si el usuario existe(duplicado)
+                        'name'     => 'required|alpha',
+                        'surname'  => 'required|alpha',
+                        'email'    => 'required|email|unique:users', // Comprobar si el usuario existe(duplicado)
                         'password' => 'required'
             ]);
 
             if ($validate->fails()) {
                 // Validacion a fallado
                 $data = array(
-                    'status' => 'error',
-                    'code' => 404,
+                    'status'  => 'error',
+                    'code'    => 404,
                     'message' => 'El usuario no se a creado',
-                    'errors' => $validate->errors()
+                    'errors'  => $validate->errors()
                 );
             } else {
                 // Validacion pasada correctamente 
@@ -91,11 +91,11 @@ class UserController extends Controller {
 
                 $user = new User();
 
-                $user->name = $params_array['name'];
-                $user->surname = $params_array['surname'];
-                $user->email = $params_array['email'];
+                $user->name     = $params_array['name'];
+                $user->surname  = $params_array['surname'];
+                $user->email    = $params_array['email'];
                 $user->password = $pwd;
-                $user->role = 'ROLE_USER';
+                $user->role     = 'ROLE_USER';
 
 
 
@@ -103,23 +103,19 @@ class UserController extends Controller {
                 $user->save();
 
                 $data = array(
-                    'status' => 'success',
-                    'code' => 200,
+                    'status'  => 'success',
+                    'code'    => 200,
                     'message' => 'El usuario se a creado correctamente',
-                    'user' => $user
+                    'user'    => $user
                 );
             }
         } else {
             $data = array(
-                'status' => 'error',
-                'code' => 404,
+                'status'  => 'error',
+                'code'    => 404,
                 'message' => 'Los datos enviados no son correctos'
             );
         }
-
-
-
-
 
 
 
@@ -133,17 +129,57 @@ class UserController extends Controller {
     }
     
     public function update(Request $request) {
+        // Comprobar si el usuario esta identificado
         $token = $request -> header('Authorization');
         $jwtAuth = new \JwtAuth();
         $checkToken = $jwtAuth -> checkToken($token);
         
-        if ( $checkToken ) {
-            echo "<h1>Login correcto</h1>";
+         // Recoger los datos por post
+            $json = $request ->input('json', null);
+            $params_array = json_decode($json, true);
+        
+        if ( $checkToken && !empty($params_array)) {
+            // Sacar usuario identificado
+            $user = $jwtAuth -> checkToken($token, true);
+            // 
+            // Validar los datos
+            
+            $validate = \Validator::make($params_array, [
+                        'name'    => 'required|alpha',
+                        'surname' => 'required|alpha',
+                        'email'   => 'required|email|unique:users,'.$user -> sub // Comprobar si el usuario existe(duplicado)
+            ]);
+            
+            // Quitar los campos que no quiero actualizar
+            
+            unset( $params_array['id'] );
+            unset( $params_array['role'] );
+            unset( $params_array['password'] );
+            unset( $params_array['created_at'] );
+            unset( $params_array['remember_token'] );
+            
+            // Actualizar en bbdd
+            $user_update = User::where('id', $user -> sub) -> update( $params_array );
+            $data = array(
+                'code'    => 200,
+                'status'  => 'success',
+                'user'    => $user,
+                'changes' => $params_array
+            );
+            
+            // Devolver array con resultado
+//            echo "<h1>Login correcto</h1>";
         } else {
-            echo "<h1>Login incorrecto</h1>";
+//            echo "<h1>Login incorrecto</h1>";
+            $data = array(
+                'code'    => 400,
+                'status'  => 'error',
+                'message' => 'El usuario no esta identificado.'
+            );
         }
         
-        die();
+        return response() -> json($data, $data['code']);
+        
     }
 
 }
