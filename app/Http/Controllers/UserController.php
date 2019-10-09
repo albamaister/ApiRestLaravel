@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\User;
 
 class UserController extends Controller {
@@ -185,22 +186,22 @@ class UserController extends Controller {
 
         // Recoger los datos de la peticion
         $image = $request->file('file0');
-        
+
         // Validacion de la imagen
         // 
-        $validate = \Validator::make($request -> all(),[
-            'file0' => 'required | image | mimes:jpg,jpeg,png,gif'
+        $validate = \Validator::make($request->all(), [
+                    'file0' => 'required | image | mimes:jpg,jpeg,png,gif'
         ]);
         // Guardar imagen 
-        if (!$image || $validate -> fails()) {
-           // Devolver resultado negativo
+        if (!$image || $validate->fails()) {
+            // Devolver resultado negativo
             $data = array(
                 'code' => 400,
                 'status' => 'error',
                 'message' => 'Error al subir imagen.'
             );
         } else {
-             $image_name = time() . $image->getClientOriginalName();
+            $image_name = time() . $image->getClientOriginalName();
             \Storage::disk('users')->put($image_name, \File::get($image));
 
             $data = array(
@@ -208,9 +209,24 @@ class UserController extends Controller {
                 'status' => 'success',
                 'image' => $image_name
             );
-            
         }
 
+        return response()->json($data, $data['code']);
+    }
+
+    public function getImage($filename) {
+        $isset = \Storage::disk('users')->exists($filename);
+
+        if ($isset) {
+            $file = \Storage::disk('users')->get($filename);
+            return new Response($file, 200);
+        } else {
+            $data = array(
+                'code'    => 404,
+                'status'  => 'error',
+                'message' => 'La imagen no existe'
+            );
+        }
         return response()->json($data, $data['code']);
     }
 
