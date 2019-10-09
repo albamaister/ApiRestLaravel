@@ -40,9 +40,9 @@ Route::get('/testOrm', 'PruebasController@testOrm');
  
  */
     // Rutas de prueba
-    Route::get('/usuario/pruebas', 'userController@pruebas');
-    Route::get('/categoria/pruebas', 'categoryController@pruebas');
-    Route::get('/entrada/pruebas', 'postController@pruebas');
+//    Route::get('/usuario/pruebas', 'userController@pruebas');
+//    Route::get('/categoria/pruebas', 'categoryController@pruebas');
+//    Route::get('/entrada/pruebas', 'postController@pruebas');
     
     // Rutas del controlador de usuarios
     
@@ -53,4 +53,8 @@ Route::get('/testOrm', 'PruebasController@testOrm');
     Route::post('/api/user/upload', 'userController@upload') -> middleware(ApiAuthMiddleware::class);
     Route::get('/api/user/avatar/{filename}', 'userController@getImage');
     Route::get('/api/user/detail/{id}', 'userController@detail');
+    
+    // Rutas del controlador de categorias
+    
+    Route::resource('/api/category', 'CategoryController');
 
