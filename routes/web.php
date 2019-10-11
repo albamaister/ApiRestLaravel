@@ -64,3 +64,5 @@ Route::get('/testOrm', 'PruebasController@testOrm');
     
     Route::post('/api/post/upload', 'PostController@upload');
     
+    Route::get('/api/post/image/{filename}', 'PostController@getImage');
+    
